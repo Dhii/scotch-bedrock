@@ -29,6 +29,8 @@ Vagrant.configure("2") do |config|
     path_composer_cache = "#{path_project_root}/.composer-cache"
     # Temporary path (absolute) to clone components into during installation
     path_tmp_clone = "#{path_project_root}/tmp"
+    # Path to the WP CLI executable
+    path_wp_cli = "/usr/local/bin/wp"
 
     url_wpcli = "https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
     url_bedrock = "https://github.com/roots/bedrock.git"
@@ -62,35 +64,57 @@ Vagrant.configure("2") do |config|
         echo "Updating Composer"
         composer self-update
 
-        echo "Downloading and installing WP CLI"
-        cd "/tmp" && sudo wget -q "#{url_wpcli}" && sudo chmod +x "/tmp/wp-cli.phar" && sudo mv "/tmp/wp-cli.phar" "/usr/local/bin/wp"
+        echo -n 'Checking for WP CLI... '
+        if [ ! -f "#{path_wp_cli}" ];
+            echo "Downloading and installing WP CLI"
+            cd "/tmp" && sudo wget -q "#{url_wpcli}" && sudo chmod +x "/tmp/wp-cli.phar" && sudo mv "/tmp/wp-cli.phar" "#{path_wp_cli}"
+        else
+            echo ' found! Skipping'
+        fi
 
-        echo "Downloading and installing Bedrock"
-        git clone "#{url_bedrock}" "#{path_tmp_clone}"
-        rm -Rf "#{path_tmp_clone}/.git"
-        shopt -s dotglob
-        mv "#{path_tmp_clone}"/* "#{path_project_root}"
-        rmdir "#{path_tmp_clone}"
+        echo -n 'Checking for Bedrock... '
+        if [ ! -f "#{path_abs_docroot}/wp" ] && [ ! -f "#{path_abs_docroot}/app" ]; then
+            echo "not found! Downloading and installing Bedrock"
+            git clone "#{url_bedrock}" "#{path_tmp_clone}"
+            rm -Rf "#{path_tmp_clone}/.git"
+            shopt -s dotglob
+            mv "#{path_tmp_clone}"/* "#{path_project_root}"
+            rmdir "#{path_tmp_clone}"
+        else
+            echo ' found! Skipping
+        fi
 
         echo "Downloading dependencies"
         export COMPOSER_CACHE_DIR="#{path_composer_cache}"
         cd "#{path_project_root}" && composer update --prefer-dist
 
-        echo "Creating new virtual host with config based on default:"
-        echo "#{path_apache_conf}"
-        sudo cp "#{path_apache_conf_root}/#{name_default_conf}" "#{path_apache_conf}"
-        sudo sed -i "s!public!#{path_rel_docroot}!g" "#{path_apache_conf}"
-        sudo sed -i "s!#ServerName www.example.com!ServerName #{name_realhost}!g" "#{path_apache_conf}"
+        echo -n 'Checking for virtual host... '
+        if [ ! -f "#{path_apache_conf}"  ]; then
+            echo 'Not found! Creating new virtual host with config based on default:'
+            echo "#{path_apache_conf}"
+            sudo cp "#{path_apache_conf_root}/#{name_default_conf}" "#{path_apache_conf}"
+            sudo sed -i "s!public!#{path_rel_docroot}!g" "#{path_apache_conf}"
+            sudo sed -i "s!#ServerName www.example.com!ServerName #{name_realhost}!g" "#{path_apache_conf}"
+        else
+            echo ' found! Skipping'
+        fi
 
         echo "Activating new virtual host"
         sudo a2ensite #{name_realhost}
         sudo service apache2 reload
 
-        echo "Writing WordPress config"
-        printf "DB_NAME=#{db_name}\nDB_USER=#{db_user}\nDB_PASSWORD=#{db_password}\nDB_HOST=#{db_host}\nWP_ENV=development\nWP_HOME=http://#{name_realhost}\nWP_SITEURL=http://#{name_realhost}/wp" > "#{path_project_root}/.env"
-        echo "Installing WordPress"
-        /home/vagrant/.rbenv/shims/mailcatcher --http-ip=0.0.0.0
-        cd "#{path_abs_docroot}" && wp core install --allow-root --url=#{url_wordpress} --title=#{hostname} --admin_user=#{wp_admin_user} --admin_password=#{wp_admin_password} --admin_email=#{wp_admin_email} --quiet
+        echo -n 'Checking for WordPress... '
+        if [ ! -f "#{path_abs_docroot}/wp-config.php" ]; then
+            echo 'not found! Installing'
+            echo "Writing WordPress config"
+            printf "DB_NAME=#{db_name}\nDB_USER=#{db_user}\nDB_PASSWORD=#{db_password}\nDB_HOST=#{db_host}\nWP_ENV=development\nWP_HOME=http://#{name_realhost}\nWP_SITEURL=http://#{name_realhost}/wp" > "#{path_project_root}/.env"
+            echo "Installing WordPress"
+            /home/vagrant/.rbenv/shims/mailcatcher --http-ip=0.0.0.0
+            cd "#{path_abs_docroot}" && wp core install --allow-root --url=#{url_wordpress} --title=#{hostname} --admin_user=#{wp_admin_user} --admin_password=#{wp_admin_password} --admin_email=#{wp_admin_email} --quiet
+            echo 'WordPress installation finished!'
+        else
+            echo ' found! Skipping'
+        fi
 
         echo "Cleaning up repo"
 
