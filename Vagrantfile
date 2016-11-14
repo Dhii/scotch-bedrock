@@ -73,7 +73,7 @@ Vagrant.configure("2") do |config|
         fi
 
         echo -n 'Checking for Bedrock... '
-        if [ ! -f "#{path_abs_docroot}/wp" ] && [ ! -f "#{path_abs_docroot}/app" ]; then
+        if [ ! -d "#{path_abs_docroot}/wp" ] && [ ! -d "#{path_abs_docroot}/app" ]; then
             echo "not found! Downloading and installing Bedrock"
             git clone "#{url_bedrock}" "#{path_tmp_clone}"
             rm -Rf "#{path_tmp_clone}/.git"
