@@ -104,7 +104,7 @@ Vagrant.configure("2") do |config|
         sudo service apache2 reload
 
         echo -n 'Checking for WordPress... '
-        if [ ! -f "#{path_abs_docroot}/wp-config.php" ]; then
+        if [ ! -f "#{path_project_root}/.env" ]; then
             echo 'not found! Installing'
             echo "Writing WordPress config"
             printf "DB_NAME=#{db_name}\nDB_USER=#{db_user}\nDB_PASSWORD=#{db_password}\nDB_HOST=#{db_host}\nWP_ENV=development\nWP_HOME=http://#{name_realhost}\nWP_SITEURL=http://#{name_realhost}/wp" > "#{path_project_root}/.env"
