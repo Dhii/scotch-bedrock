@@ -69,7 +69,8 @@ Vagrant.configure("2") do |config|
             echo "Downloading and installing WP CLI"
             cd "/tmp" && sudo wget -q "#{url_wpcli}" && sudo chmod +x "/tmp/wp-cli.phar" && sudo mv "/tmp/wp-cli.phar" "#{path_wp_cli}"
         else
-            echo ' found! Skipping'
+            echo ' found! Updating'
+            #{path_wp_cli} cli update --allow-root --yes
         fi
 
         echo -n 'Checking for Bedrock... '
