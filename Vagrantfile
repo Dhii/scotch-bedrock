@@ -65,7 +65,7 @@ Vagrant.configure("2") do |config|
         composer self-update
 
         echo -n 'Checking for WP CLI... '
-        if [ ! -f "#{path_wp_cli}" ];
+        if [ ! -f "#{path_wp_cli}" ]; then
             echo "Downloading and installing WP CLI"
             cd "/tmp" && sudo wget -q "#{url_wpcli}" && sudo chmod +x "/tmp/wp-cli.phar" && sudo mv "/tmp/wp-cli.phar" "#{path_wp_cli}"
         else
@@ -81,7 +81,7 @@ Vagrant.configure("2") do |config|
             mv "#{path_tmp_clone}"/* "#{path_project_root}"
             rmdir "#{path_tmp_clone}"
         else
-            echo ' found! Skipping
+            echo ' found! Skipping'
         fi
 
         echo "Downloading dependencies"
