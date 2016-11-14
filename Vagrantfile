@@ -89,7 +89,8 @@ Vagrant.configure("2") do |config|
         echo "Writing WordPress config"
         printf "DB_NAME=#{db_name}\nDB_USER=#{db_user}\nDB_PASSWORD=#{db_password}\nDB_HOST=#{db_host}\nWP_ENV=development\nWP_HOME=http://#{name_realhost}\nWP_SITEURL=http://#{name_realhost}/wp" > "#{path_project_root}/.env"
         echo "Installing WordPress"
-        cd "#{path_abs_docroot}"&& wp core install --allow-root --url=#{url_wordpress} --title=#{hostname} --admin_user=#{wp_admin_user} --admin_password=#{wp_admin_password} --admin_email=#{wp_admin_email} --quiet
+        /home/vagrant/.rbenv/shims/mailcatcher --http-ip=0.0.0.0
+        cd "#{path_abs_docroot}" && wp core install --allow-root --url=#{url_wordpress} --title=#{hostname} --admin_user=#{wp_admin_user} --admin_password=#{wp_admin_password} --admin_email=#{wp_admin_email} --quiet
 
         echo "Cleaning up repo"
 
