@@ -86,7 +86,7 @@ Vagrant.configure("2") do |config|
 
         echo "Downloading dependencies"
         export COMPOSER_CACHE_DIR="#{path_composer_cache}"
-        cd "#{path_project_root}" && composer update --prefer-dist
+        cd "#{path_project_root}" && composer install --prefer-dist
 
         echo -n 'Checking for virtual host... '
         if [ ! -f "#{path_apache_conf}"  ]; then
