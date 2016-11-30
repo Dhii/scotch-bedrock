@@ -67,7 +67,7 @@ Vagrant.configure("2") do |config|
         s.privileged = false
         s.inline = <<-SHELL
             echo "Updating Composer"
-            composer self-update
+            sudo composer self-update
 
             echo -n 'Checking for WP CLI... '
             if [ ! -f "#{path_wp_cli}" ]; then
@@ -75,7 +75,7 @@ Vagrant.configure("2") do |config|
                 cd "/tmp" && sudo wget -q "#{url_wpcli}" && sudo chmod +x "/tmp/wp-cli.phar" && sudo mv "/tmp/wp-cli.phar" "#{path_wp_cli}"
             else
                 echo ' found! Updating'
-                #{path_wp_cli} cli update --allow-root --yes
+                sudo #{path_wp_cli} cli update --allow-root --yes
             fi
 
             echo -n 'Checking for Bedrock... '
