@@ -90,7 +90,9 @@ Vagrant.configure("2") do |config|
 
         echo "Downloading dependencies"
         export COMPOSER_CACHE_DIR="#{path_composer_cache}"
-        cd "#{path_project_root}" && composer require #{dep_wp_provisioner} && composer install --prefer-dist
+        cd "#{path_project_root}"
+        composer config minimum-stability dev
+        composer install --prefer-dist && composer require #{dep_wp_provisioner}
 
         echo -n 'Checking for virtual host... '
         if [ ! -f "#{path_apache_conf}"  ]; then
