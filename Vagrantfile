@@ -63,74 +63,77 @@ Vagrant.configure("2") do |config|
     #config.vm.synced_folder ".", "#{path_apache_www}", :nfs => { :mount_options => ["dmode=777","fmode=666"] }
 
     # to get WordPress up and running
-    config.vm.provision "shell", inline: <<-SHELL
-        echo "Updating Composer"
-        composer self-update
+    config.vm.provision "shell" do |s|
+        s.privileged = false
+        s.inline = <<-SHELL
+            echo "Updating Composer"
+            composer self-update
 
-        echo -n 'Checking for WP CLI... '
-        if [ ! -f "#{path_wp_cli}" ]; then
-            echo "Downloading and installing WP CLI"
-            cd "/tmp" && sudo wget -q "#{url_wpcli}" && sudo chmod +x "/tmp/wp-cli.phar" && sudo mv "/tmp/wp-cli.phar" "#{path_wp_cli}"
-        else
-            echo ' found! Updating'
-            #{path_wp_cli} cli update --allow-root --yes
-        fi
+            echo -n 'Checking for WP CLI... '
+            if [ ! -f "#{path_wp_cli}" ]; then
+                echo "Downloading and installing WP CLI"
+                cd "/tmp" && sudo wget -q "#{url_wpcli}" && sudo chmod +x "/tmp/wp-cli.phar" && sudo mv "/tmp/wp-cli.phar" "#{path_wp_cli}"
+            else
+                echo ' found! Updating'
+                #{path_wp_cli} cli update --allow-root --yes
+            fi
 
-        echo -n 'Checking for Bedrock... '
-        if [ ! -d "#{path_abs_docroot}/wp" ] && [ ! -d "#{path_abs_docroot}/app" ]; then
-            echo "not found! Downloading and installing Bedrock"
-            git clone "#{url_bedrock}" "#{path_tmp_clone}"
-            rm -Rf "#{path_tmp_clone}/.git"
-            shopt -s dotglob
-            mv "#{path_tmp_clone}"/* "#{path_project_root}"
-            rmdir "#{path_tmp_clone}"
-        else
-            echo ' found! Skipping'
-        fi
+            echo -n 'Checking for Bedrock... '
+            if [ ! -d "#{path_abs_docroot}/wp" ] && [ ! -d "#{path_abs_docroot}/app" ]; then
+                echo "not found! Downloading and installing Bedrock"
+                git clone "#{url_bedrock}" "#{path_tmp_clone}"
+                rm -Rf "#{path_tmp_clone}/.git"
+                shopt -s dotglob
+                mv "#{path_tmp_clone}"/* "#{path_project_root}"
+                rmdir "#{path_tmp_clone}"
+            else
+                echo ' found! Skipping'
+            fi
 
-        echo "Downloading dependencies"
-        export COMPOSER_CACHE_DIR="#{path_composer_cache}"
-        cd "#{path_project_root}"
-        composer config minimum-stability dev
-        composer install --prefer-dist && composer require #{dep_wp_provisioner}
+            echo "Downloading dependencies"
+            export COMPOSER_CACHE_DIR="#{path_composer_cache}"
+            cd "#{path_project_root}"
+            composer config minimum-stability dev
+            composer install --prefer-dist && composer require #{dep_wp_provisioner}
 
-        echo -n 'Checking for virtual host... '
-        if [ ! -f "#{path_apache_conf}"  ]; then
-            echo 'Not found! Creating new virtual host with config based on default:'
-            echo "#{path_apache_conf}"
-            sudo cp "#{path_apache_conf_root}/#{name_default_conf}" "#{path_apache_conf}"
-            sudo sed -i "s!public!#{path_rel_docroot}!g" "#{path_apache_conf}"
-            sudo sed -i "s!#ServerName www.example.com!ServerName #{name_realhost}!g" "#{path_apache_conf}"
-        else
-            echo ' found! Skipping'
-        fi
+            echo -n 'Checking for virtual host... '
+            if [ ! -f "#{path_apache_conf}"  ]; then
+                echo 'Not found! Creating new virtual host with config based on default:'
+                echo "#{path_apache_conf}"
+                sudo cp "#{path_apache_conf_root}/#{name_default_conf}" "#{path_apache_conf}"
+                sudo sed -i "s!public!#{path_rel_docroot}!g" "#{path_apache_conf}"
+                sudo sed -i "s!#ServerName www.example.com!ServerName #{name_realhost}!g" "#{path_apache_conf}"
+            else
+                echo ' found! Skipping'
+            fi
 
-        echo "Activating new virtual host"
-        sudo a2ensite #{name_realhost}
-        sudo service apache2 reload
+            echo "Activating new virtual host"
+            sudo a2ensite #{name_realhost}
+            sudo service apache2 reload
 
-        echo -n 'Checking for WordPress... '
-        if [ ! -f "#{path_project_root}/.env" ]; then
-            echo 'not found! Installing'
-            echo "Writing WordPress config"
-            printf "DB_NAME=#{db_name}\nDB_USER=#{db_user}\nDB_PASSWORD=#{db_password}\nDB_HOST=#{db_host}\nWP_ENV=development\nWP_HOME=http://#{name_realhost}\nWP_SITEURL=http://#{name_realhost}/wp" > "#{path_project_root}/.env"
-            echo "Installing WordPress"
-            /home/vagrant/.rbenv/shims/mailcatcher --http-ip=0.0.0.0
-            cd "#{path_abs_docroot}" && wp core install --allow-root --url=#{url_wordpress} --title=#{hostname} --admin_user=#{wp_admin_user} --admin_password=#{wp_admin_password} --admin_email=#{wp_admin_email} --quiet
-            echo 'WordPress installation finished!'
-        else
-            echo ' found! Skipping'
-        fi
+            echo -n 'Checking for WordPress... '
+            if [ ! -f "#{path_project_root}/.env" ]; then
+                echo 'not found! Installing'
+                echo "Writing WordPress config"
+                printf "DB_NAME=#{db_name}\nDB_USER=#{db_user}\nDB_PASSWORD=#{db_password}\nDB_HOST=#{db_host}\nWP_ENV=development\nWP_HOME=http://#{name_realhost}\nWP_SITEURL=http://#{name_realhost}/wp" > "#{path_project_root}/.env"
+                echo "Installing WordPress"
+                /home/vagrant/.rbenv/shims/mailcatcher --http-ip=0.0.0.0
+                cd "#{path_abs_docroot}" && wp core install --allow-root --url=#{url_wordpress} --title=#{hostname} --admin_user=#{wp_admin_user} --admin_password=#{wp_admin_password} --admin_email=#{wp_admin_email} --quiet
+                echo 'WordPress installation finished!'
+            else
+                echo ' found! Skipping'
+            fi
 
-        echo "Cleaning up repo"
+            echo "Cleaning up repo"
 
-        echo "Complete!"
-        echo "Go to #{url_wordpress} in your browser"
-    SHELL
+            echo "Complete!"
+            echo "Go to #{url_wordpress} in your browser"
+        SHELL
+    end
 
     config.vm.provider :virtualbox do |vb|
 		    vb.gui = false
-		    vb.memory = 1024
+		    vb.memory = 2048
         vb.name = hostname
         vb.customize ['modifyvm', :id, '--natdnshostresolver1', 'on']
         vb.customize ['modifyvm', :id, '--natdnsproxy1', 'on']
