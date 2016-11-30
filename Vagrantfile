@@ -36,6 +36,9 @@ Vagrant.configure("2") do |config|
     url_bedrock = "https://github.com/roots/bedrock.git"
     url_wordpress = "http://#{name_realhost}"
 
+    # WP Provisioner dependency Composer package name
+    dep_wp_provisioner = "dnaber/wp-provisioner"
+
     db_name = "scotchbox"
     db_user = "root"
     db_password = "root"
