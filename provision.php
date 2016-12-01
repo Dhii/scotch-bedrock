@@ -4,6 +4,7 @@
 namespace WpProvision\Api;
 
 $projectDocroot    = getenv('DSBR_PROJECT_DOCROOT');
+$siteTitle         = getenv('DSBR_SITE_TITLE');
 $siteUrl           = getenv('DSBR_SITE_URL');
 $siteAdminUser     = getenv('DSBR_SITE_ADMIN_USER');
 $siteAdminPassword = getenv('DSBR_SITE_ADMIN_PASSWORD');
@@ -36,6 +37,9 @@ $api->versionList()->addProvision('0.1.0',
                 'login'         => $siteAdminUser,
                 'email'         => $siteAdminEmail,
                 'password'      => $siteAdminPassword
+            ],
+            [
+                'title'         => $siteTitle
             ]
         );
 
