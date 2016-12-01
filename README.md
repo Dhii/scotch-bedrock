@@ -1,5 +1,7 @@
 Scotch Bedrock
 ==============
+
+[![Join the chat at https://gitter.im/Dhii/scotch-bedrock](https://badges.gitter.im/Dhii/scotch-bedrock.svg)](https://gitter.im/Dhii/scotch-bedrock?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 We use this as a boilerplate to get new development projects up and running in seconds.
 
 This is a Vagrant setup with:
