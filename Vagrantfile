@@ -31,6 +31,8 @@ Vagrant.configure("2") do |config|
     path_tmp_clone = "#{path_project_root}/tmp"
     # Path to the WP CLI executable
     path_wp_cli = "/usr/local/bin/wp"
+    # Path to the WP Provisioner executable, relative to the project root
+    path_wp_provisioner = "#{path_project_root}/vendor/bin/wp-provisioner"
 
     url_wpcli = "https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
     url_bedrock = "https://github.com/roots/bedrock.git"
@@ -66,6 +68,13 @@ Vagrant.configure("2") do |config|
     config.vm.provision "shell" do |s|
         s.privileged = false
         s.inline = <<-SHELL
+            export DSBR_SITE_URL="#{url_wordpress}"
+            export DSBR_SITE_TITLE="#{hostname}"
+            export DSBR_SITE_ADMIN_USER="#{wp_admin_user}"
+            export DSBR_SITE_ADMIN_PASSWORD="#{wp_admin_password}"
+            export DSBR_SITE_ADMIN_EMAIL="#{wp_admin_email}"
+            export DSBR_PROJECT_DOCROOT="#{path_abs_docroot}"
+
             echo "Updating Composer"
             sudo composer self-update
 
@@ -94,7 +103,8 @@ Vagrant.configure("2") do |config|
             export COMPOSER_CACHE_DIR="#{path_composer_cache}"
             cd "#{path_project_root}"
             composer config minimum-stability dev
-            composer install --prefer-dist && composer require #{dep_wp_provisioner}
+            composer install --prefer-dist
+            composer require --dev --prefer-dist "#{dep_wp_provisioner}"
 
             echo -n 'Checking for virtual host... '
             if [ ! -f "#{path_apache_conf}"  ]; then
@@ -118,7 +128,9 @@ Vagrant.configure("2") do |config|
                 printf "DB_NAME=#{db_name}\nDB_USER=#{db_user}\nDB_PASSWORD=#{db_password}\nDB_HOST=#{db_host}\nWP_ENV=development\nWP_HOME=http://#{name_realhost}\nWP_SITEURL=http://#{name_realhost}/wp" > "#{path_project_root}/.env"
                 echo "Installing WordPress"
                 /home/vagrant/.rbenv/shims/mailcatcher --http-ip=0.0.0.0
-                cd "#{path_abs_docroot}" && wp core install --allow-root --url=#{url_wordpress} --title=#{hostname} --admin_user=#{wp_admin_user} --admin_password=#{wp_admin_password} --admin_email=#{wp_admin_email} --quiet
+                cd "#{path_abs_docroot}"
+                # Provisioning WordPress
+                "#{path_wp_provisioner}" provision 0.1.0
                 echo 'WordPress installation finished!'
             else
                 echo ' found! Skipping'
