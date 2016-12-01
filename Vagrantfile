@@ -59,7 +59,7 @@ Vagrant.configure("2") do |config|
     config.vm.hostname = hostname
     config.vm.box = "scotch/box"
     config.hostsupdater.aliases = ["www.#{name_realhost}","#{name_realhost}"]
-    config.vm.synced_folder ".", "#{path_apache_www}", :mount_options => ["dmode=777", "fmode=766"], group: "vagrant"
+    config.vm.synced_folder ".", "#{path_apache_www}", :mount_options => ["dmode=777", "fmode=766"]
 
     # Optional NFS. Make sure to remove other synced_folder line too
     #config.vm.synced_folder ".", "#{path_apache_www}", :nfs => { :mount_options => ["dmode=777","fmode=666"] }
@@ -128,7 +128,7 @@ Vagrant.configure("2") do |config|
                 printf "DB_NAME=#{db_name}\nDB_USER=#{db_user}\nDB_PASSWORD=#{db_password}\nDB_HOST=#{db_host}\nWP_ENV=development\nWP_HOME=http://#{name_realhost}\nWP_SITEURL=http://#{name_realhost}/wp" > "#{path_project_root}/.env"
                 echo "Installing WordPress"
                 /home/vagrant/.rbenv/shims/mailcatcher --http-ip=0.0.0.0
-                cd "#{path_abs_docroot}"
+                cd "#{path_project_root}"
                 # Provisioning WordPress
                 "#{path_wp_provisioner}" provision 0.1.0
                 echo 'WordPress installation finished!'
