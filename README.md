@@ -1,7 +1,14 @@
 # Scotch Bedrock
-You can use this as a boilerplate to get new development projects up and running in seconds. After the environment is created, you can remove some provisioning steps, such as the installation of Bedrock: it has its own `composer.json` file, which you may want to edit, or commit the whole `app` directory. However, please note that installation of Bedrock and WordPress will be skipped if they are already found - see end of "Provisioning" section for more details.
+[![Join the chat at https://gitter.im/Dhii/scotch-bedrock](https://badges.gitter.im/Dhii/scotch-bedrock.svg)](https://gitter.im/Dhii/scotch-bedrock?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+You can use this as a boilerplate to get new development projects up and running in seconds.
+After the environment is created, you can remove some provisioning steps, such as the installation of Bedrock:
+t has its own `composer.json` file, which you may want to edit, or commit the whole `app` directory.
+owever, please note that installation of Bedrock and WordPress will be skipped if they are already found -
+see "Provisioning" section for more details.
 
 This is a Vagrant setup with:
+
 * [ScotchBox](http://box.scotch.io)
 * [Roots Bedrock](https://roots.io/bedrock/)
 * Some simple provision script setup in the Vagrantfile
