@@ -9,8 +9,6 @@ $siteAdminUser     = getenv('DSBR_SITE_ADMIN_USER');
 $siteAdminPassword = getenv('DSBR_SITE_ADMIN_PASSWORD');
 $siteAdminEmail    = getenv('DSBR_SITE_ADMIN_EMAIL');
 
-phpinfo(INFO_ENVIRONMENT);
-
 /**
  * The variable $api points to an instance of WpProvisioner that gives
  * you access to the public API
