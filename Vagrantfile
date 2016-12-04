@@ -61,6 +61,9 @@ Vagrant.configure("2") do |config|
     config.hostsupdater.aliases = ["www.#{name_realhost}","#{name_realhost}"]
     config.vm.synced_folder ".", "#{path_apache_www}", :mount_options => ["dmode=777", "fmode=766"]
 
+    # Size of swapfile
+    swapfile_size = '1024M'
+
     # Optional NFS. Make sure to remove other synced_folder line too
     #config.vm.synced_folder ".", "#{path_apache_www}", :nfs => { :mount_options => ["dmode=777","fmode=666"] }
 
