@@ -39,7 +39,7 @@ Vagrant.configure("2") do |config|
     url_wordpress = "http://#{name_realhost}"
 
     # WP Provisioner dependency Composer package name
-    dep_wp_provisioner = "dnaber/wp-provisioner"
+    dep_wp_provisioner = "dhii/wp-provisioner:0.1-alpha"
 
     db_name = "scotchbox"
     db_user = "root"
