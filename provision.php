@@ -28,7 +28,7 @@ $api->versionList()->addProvision('0.1.0',
      * @param \WpProvision\Api\WpCommandProvider $provider
      */
     function($provider) use (
-        $siteUrl, $siteAdminEmail, $siteAdminUser, $siteAdminPassword
+        $siteUrl, $siteTitle, $siteAdminEmail, $siteAdminUser, $siteAdminPassword
     ) {
 
         $provider->core()->install(
