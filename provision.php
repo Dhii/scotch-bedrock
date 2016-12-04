@@ -1,8 +1,6 @@
 <?php
 # -*- coding: utf-8 -*-
 
-namespace WpProvision\Api;
-
 $projectDocroot    = getenv('DSBR_PROJECT_DOCROOT');
 $siteTitle         = getenv('DSBR_SITE_TITLE');
 $siteUrl           = getenv('DSBR_SITE_URL');
