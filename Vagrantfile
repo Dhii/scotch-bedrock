@@ -71,6 +71,23 @@ Vagrant.configure("2") do |config|
     config.vm.provision "shell" do |s|
         s.privileged = false
         s.inline = <<-SHELL
+            echo -n 'Checking for swapfile...'
+            grep -q "swapfile" /etc/fstab
+            if [ $? -ne 0 ]; then
+                echo ' not found. Creating ...'
+                sudo fallocate -l #{swapfile_size} /swapfile
+                sudo chmod 600 /swapfile
+                sudo mkswap /swapfile
+                sudo swapon /swapfile
+                echo '/swapfile none swap defaults 0 0' | sudo tee -a /etc/fstab
+                # Output results to terminal
+                df -h
+                cat /proc/swaps
+                cat /proc/meminfo | grep Swap
+            else
+                echo ' found! No changes made.'
+            fi
+
             export DSBR_SITE_URL="#{url_wordpress}"
             export DSBR_SITE_TITLE="#{hostname}"
             export DSBR_SITE_ADMIN_USER="#{wp_admin_user}"
